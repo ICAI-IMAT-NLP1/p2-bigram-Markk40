@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 
 def load_and_preprocess_data(
-    filepath: str, start_token: str = "!", end_token: str = "."
+    filepath: str, start_token: str = "<S>", end_token: str = "<E>"
 ) -> List[Tuple[str, str]]:
     """
     Load text from a file and preprocess them into bigrams with specified start and end tokens.
@@ -29,8 +29,15 @@ def load_and_preprocess_data(
     with open(filepath, "r") as file:
         lines: List[str] = file.read().splitlines()
 
-    # TODO
-    bigrams: List[Tuple[str, str]] = None
+    bigrams: List[Tuple[str, str]] = []
+
+    for line in lines:
+        element: List[str] = line.split(" ")
+        name: str = " ".join(element[:-2])
+        word: str = start_token + name.lower() + end_token
+        for i in range(1,len(word)):
+            bigrams.append((word[i-1], word[i]))
+    
 
     return bigrams
 
@@ -48,8 +55,10 @@ def char_to_index(alphabet: str, start_token: str, end_token: str) -> Dict[str, 
         Dict[str, int]: A dictionary mapping each character, including start and end tokens, to an index.
     """
     # Create a dictionary with start token at the beginning and end token at the end
-    # TODO
-    char_to_idx: Dict[str, int] = None
+    char_to_idx: Dict[str, int] = {}
+    alphabet_with_tokens: str = start_token + alphabet + end_token
+    for i in range(len(alphabet_with_tokens)):
+        char_to_idx[alphabet_with_tokens[i]] = i
 
     return char_to_idx
 
@@ -65,8 +74,10 @@ def index_to_char(char_to_index: Dict[str, int]) -> Dict[int, str]:
         Dict[int, str]: A dictionary mapping each index back to its corresponding character.
     """
     # Reverse the char_to_index mapping
-    # TODO
-    idx_to_char: Dict[int, str] = None
+    idx_to_char: Dict[int, str] = {}
+
+    for char, index in char_to_index.items():
+        idx_to_char[index] = char
 
     return idx_to_char
 
@@ -92,11 +103,14 @@ def count_bigrams(
     """
 
     # Initialize a 2D tensor for counting bigrams
-    # TODO
-    bigram_counts: torch.Tensor = None
+    bigram_counts: torch.Tensor = torch.zeros((len(char_to_idx), len(char_to_idx)))
 
     # Iterate over each bigram and update the count in the tensor
-    # TODO
+    for bigram in bigrams:
+        if (bigram[0] in char_to_idx.keys()) and (bigram[1] in char_to_idx.keys()):
+            i: int = char_to_idx[bigram[0]]
+            j: int = char_to_idx[bigram[1]]
+            bigram_counts[i,j] += 1
 
     return bigram_counts
 
