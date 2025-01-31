@@ -22,7 +22,7 @@ def bigrams_count_to_probabilities(
         to the row index.
     """
     # Normalize each row to sum to 1, converting counts to probabilities, remember to add smooth_factor
-    probab_tensor = torch.empty(size=bigram_counts.shape)
+    probab_tensor = torch.empty(size= bigram_counts.shape)
 
     for i in range(len(probab_tensor)):
         row: torch.Tensor = bigram_counts[i]
